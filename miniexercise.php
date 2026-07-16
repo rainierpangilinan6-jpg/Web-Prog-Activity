@@ -1,8 +1,8 @@
 <?php
 
-$name = $_GET["fullname"];
-$email = $_GET["email"];
-$message = $_GET["message"];
+$name = $_POST["fullname"];
+$email = $_POST["email"];
+$message = $_POST["message"];
 
 echo "Welcome $name <br>";
 echo "Email: $email <br>";
