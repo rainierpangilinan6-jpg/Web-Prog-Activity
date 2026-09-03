@@ -1,11 +1,33 @@
 <?php
+ include "connection.php";
 
-$name = $_GET["fullname"];
-$email = $_GET["email"];
-$message = $_GET["message"];
+ if(isset($_POST["register"])){
+    $student_no = $_POST["student_no"];
+    $student_name = $_POST["student_name"];
+    $course = $_POST["course"];
+    
+    
+    $sql = "INSERT INTO students(
+                    student_no,
+                    student_name,
+                    course
+                    
+                )
+                VALUES(
+                    '$student_no',
+                    '$student_name',
+                    '$course'
+                )
+    ";
 
-echo "Welcome $name <br>";
-echo "Email: $email <br>";
-echo "Message: $message <br>";
+    if(mysqli_query($conn, $sql)){
+        header("Location: index.php?info=Student registered successfully!");
+        exit();
+    }
+    else{
+        header("Location: index.php?info=".urlencode(mysqli_error($conn)));
+        exit();
+    }
 
+ }
 ?>
