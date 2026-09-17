@@ -1,114 +1,80 @@
-<!DOCTYPE html>
+<?php
+session_start();
+include "config/database.php";
+
+//if user is already logged in, send them to correct dashboard
+if (isset($_SESSION["role"])){
+    if (isset($_SESSION["role"]) == "admin"){
+        header("Location: admin/dashboard.php");
+    }
+    else{
+        header("Location: student/dashboard.php");
+    }
+    exit;
+}
+
+$error = "";
+
+if (isset($_POST["login"])){
+    //get data from POST form
+    $username = mysqli_real_escape_string($conn,$_POST["username"]);
+    $password = $_POST["password"];
+    //find typed username
+    $sql = "SELECT * FROM users WHERE username = '$username' LIMIT 1"; //table na may account
+    $result = mysqli_query($conn,$sql); //kung ilan ung result, dito lalabas
+    
+    if (mysqli_num_rows($result) == 1){ //num rows
+        $user = mysqli_fetch_assoc($result); //kung sino may ari ng account
+
+        if(password_verify($password,$user["password"])){ //if tama password
+            $_SESSION["user_id"] = $user["id"]; //ID is galing sa DB
+            $_SESSION["full_name"] = $user["full_name"];
+            $_SESSION["role"] = $user["role"];
+
+            if ($user["role"] == "admin"){
+                header("Location: admin/dashboard.php");
+            }
+            else{
+                header("Location: student/dashboard.php");
+            }
+        }
+    }
+    $error = "Invalid Username or Password.";
+
+    
+
+}
+
+?>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Student Registration</title>
-
-    <link 
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" 
-        rel="stylesheet">
+    <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Login - Student Portal</title>
+    <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="assets/css/style.css" rel="stylesheet">
 </head>
-
 <body>
-<?php
-    if(isset($_GET["info"])){
-        echo $_GET["info"];
-    }
-?>
+<div class="container">
+    <div class="login-box">
+        <div class="card"><div class="card-body p-4">
+            <h2 class="text-center">Student Portal</h2>
+            <p class="text-center text-muted">Admin and Student Login</p>
+            
+            <?php
+            if ($error !==""){?>
+            <div class ="alert alert-danger"><?php echo $error; ?></div>
+            <?php
+            }
+            ?>
 
-<div class="container mt-5">
-
-    <div class="card shadow">
-
-        <div class="card-header bg-primary text-white">
-            <h3 class="mb-0">Student Registration Form</h3>
-        </div>
-
-        <div class="card-body">
-
-            <form method="POST" action="process.php">
-
-                <!-- Student Number -->
-                <div class="mb-3">
-                    <label for="student_no" class="form-label">
-                        Student Number
-                    </label>
-
-                    <input 
-                        type="text"
-                        class="form-control"
-                        id="student_no"
-                        name="student_no"
-                        placeholder="Enter student number">
-                </div>
-
-                <!-- Name -->
-                <div class="row">
-
-                    <div class="col-md-4 mb-3">
-                        <label for="student_name" class="form-label">
-                            Student Name
-                        </label>
-
-                        <input 
-                            type="text"
-                            class="form-control"
-                            id="student_name"
-                            name="student_name"
-                            placeholder="Enter first name">
-                    </div>
-
-                   
-                <!-- Course and Year Level -->
-                <div class="row">
-
-                    <div class="col-md-8 mb-3">
-
-                        <label for="course" class="form-label">
-                            Course
-                        </label>
-
-                        <select 
-                            class="form-select"
-                            id="course"
-                            name="course">
-
-                            <option value="">Select Course</option>
-                            <option value="ACT">
-                                Associate in Computer Technology
-                            </option>
-
-                            <option value="CT">
-                                Computer Technology
-                            </option>
-
-                        </select>
-
-                    </div>
-
-                <!-- Submit Button -->
-                <div class="d-grid">
-
-                    <button 
-                        type="submit"
-                        class="btn btn-primary"
-                        name="register">
-
-                        Register Student
-
-                    </button>
-
-                </div>
-
+            <form method="POST">
+                <div class="mb-3"><label class="form-label">Username</label><input type="text" name="username" class="form-control"></div>
+                <div class="mb-3"><label class="form-label">Password</label><input type="password" name="password" class="form-control"></div>
+                <button class="btn btn-primary w-100" type="submit" name="login">Login</button>
             </form>
-
-        </div>
-
+        </div></div>
     </div>
-
 </div>
-
 </body>
 </html>
